@@ -35,7 +35,7 @@
         <aside class="admin-sidebar">
             <div class="sidebar-brand" style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 15px;">
                 <img src="../shared/img/logo.jpg" alt="Organization Logo" style="height: 40px; border-radius: 6px;">
-                <span style="font-weight: 800; font-size: 1.1rem; color: white;">Teacher</span>
+                <span style="font-weight: 800; font-size: 1.1rem; color: var(--primary-dark);">Teacher</span>
             </div>
 
             <nav class="admin-tabs">
@@ -66,9 +66,6 @@
                     <h1>Teacher Portal <span class="version">v1.0 (MVP)</span></h1>
                 </div>
                 <div class="header-actions" style="display: flex; align-items: center; gap: 15px; flex-wrap: nowrap;">
-                    <button class="btn-secondary btn-outline" @click="isLightMode = !isLightMode" style="margin: 0; padding: 6px 10px; border-radius: 4px; font-size: 0.85rem; min-width: 125px; white-space: nowrap;" title="Toggle Theme">
-                        <span x-text="isLightMode ? '🌙 Dark Mode' : '☀️ Light Mode'"></span>
-                    </button>
                     <div class="user-profile" style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
                         <span x-text="teacherName"></span>
                         <div class="avatar" x-text="teacherName.charAt(0)"></div>
@@ -225,45 +222,11 @@
         <div x-show="viewMode === 'analytics'" style="display: none; width: 100%; max-width: 100%; padding: 0 20px;">
             <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 10px; margin-bottom: 40px;">
                 <!-- Attendance Trend Chart -->
-                <div class="analytics-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-glass);">
-                    <h3 style="margin-bottom: 15px; color: var(--primary-dark); font-family: 'Outfit';">Attendance Trend</h3>
-                    <canvas id="attendanceChart" width="400" height="250"></canvas>
-                </div>
-                
-                <!-- Performance & Speaking Time -->
-                <div class="analytics-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border-glass); display: flex; flex-direction: column; align-items: center;">
-                    <h3 style="margin-bottom: 15px; color: var(--primary-dark); font-family: 'Outfit'; width: 100%;">Student vs Teacher Talk Time</h3>
-                    <div style="width: 100%; max-width: 250px;">
-                        <canvas id="sttChart" width="250" height="250"></canvas>
+                <div class="analytics-card" style="background: white; padding: 20px; border-radius: 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-glass);">
+                    <h3 style="margin-bottom: 15px; color: var(--primary-dark); font-family: 'Inter', sans-serif;">Analytics</h3>
+                    <div style="height: 250px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem;">
+                        No data available
                     </div>
-                </div>
-
-                <!-- Actionable Insights -->
-                <div class="analytics-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, #f0f4ff, #e6eeff); padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #cce0ff;">
-                    <h3 style="margin-bottom: 15px; color: var(--primary-blue, #304587); font-family: 'Outfit'; display: flex; align-items: center; gap: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                        AI Insights for <span x-text="classes.find(c => c.id === selectedClass)?.name || 'this class'" style="margin-left: 5px;"></span>
-                    </h3>
-                    <ul style="list-style-type: none; padding: 0; display: flex; flex-direction: column; gap: 16px;">
-                        <li style="display: flex; gap: 12px; align-items: start; background: white; padding: 12px 16px; border-radius: 8px; border-left: 4px solid var(--danger);">
-                            <span style="font-size: 1.2rem;">📉</span>
-                            <div>
-                                <strong style="color: var(--danger);">Attendance Alert:</strong> 2 students have missed more than 3 consecutive classes. Consider sending a reminder.
-                            </div>
-                        </li>
-                        <li style="display: flex; gap: 12px; align-items: start; background: white; padding: 12px 16px; border-radius: 8px; border-left: 4px solid var(--primary);">
-                            <span style="font-size: 1.2rem;">🗣️</span>
-                            <div>
-                                <strong style="color: var(--primary);">STT Optimization:</strong> Teacher talk time is at 65%. Try using more pair-work (Breakout rooms) to boost Student Talk Time.
-                            </div>
-                        </li>
-                        <li style="display: flex; gap: 12px; align-items: start; background: white; padding: 12px 16px; border-radius: 8px; border-left: 4px solid var(--success);">
-                            <span style="font-size: 1.2rem;">⭐</span>
-                            <div>
-                                <strong style="color: var(--success);">Top Performers:</strong> Ali and Fatima have shown 20% improvement in fluency over the last month!
-                            </div>
-                        </li>
-                    </ul>
                 </div>
             </div>
         </div>

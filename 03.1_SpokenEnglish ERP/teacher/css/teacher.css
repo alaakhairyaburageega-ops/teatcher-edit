@@ -281,216 +281,43 @@ select.control-input {
     .page-header {
         flex-direction: column;
         align-items: flex-start;
+        padding: 15px;
+        gap: 15px;
     }
     .context-controls {
         width: 100%;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .control-group {
+        width: 100%;
+    }
+    .control-group > div {
+        flex-wrap: wrap;
     }
     .control-input {
         width: 100%;
+        min-width: 100%;
     }
     .action-bar {
         flex-direction: column;
         gap: 15px;
         text-align: center;
+        padding: 15px;
     }
-.student-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.student-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.student-avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: var(--bg-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    color: var(--primary);
-}
-
-.student-name {
-    font-weight: 600;
-    font-size: 1.1rem;
-}
-
-.student-status {
-    font-size: 0.85rem;
-}
-
-/* Toggle States */
-.student-card.present {
-    border-color: rgba(34, 197, 94, 0.3);
-    background: rgba(34, 197, 94, 0.05);
-}
-
-.student-card.present .student-status {
-    color: var(--success);
-}
-
-.student-card.absent {
-    border-color: rgba(239, 68, 68, 0.3);
-    background: rgba(239, 68, 68, 0.05);
-}
-
-.student-card.absent .student-status {
-    color: var(--danger);
-}
-
-.toggle-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-}
-
-.student-card.present .toggle-icon {
-    background: var(--success);
-    color: var(--white);
-}
-
-.student-card.absent .toggle-icon {
-    background: var(--danger);
-    color: var(--white);
-}
-
-/* Action Bar */
-.action-bar {
-    position: sticky;
-    bottom: 20px;
-    background: var(--white);
-    padding: 20px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
-}
-
-.summary {
-    font-weight: 600;
-    color: var(--text-main);
-}
-
-.btn-primary {
-    padding: 12px 30px;
-    background: var(--primary);
-    color: var(--white);
-    border: none;
-    border-radius: 8px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(48, 69, 135, 0.3);
-}
-
-/* Toast */
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--white);
-    border-inline-start: 4px solid var(--success);
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    z-index: 1000;
-    transform: translateX(120%);
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.toast.show {
-    transform: translateX(0);
-}
-
-/* Modals */
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.modal-content {
-    background: var(--white);
-    padding: 30px;
-    border-radius: var(--radius);
-    width: 90%;
-    max-width: 500px;
-    box-shadow: var(--shadow-lg);
-}
-
-.btn-secondary {
-    padding: 12px 30px;
-    background: #e0e0e0;
-    color: var(--text-main);
-    border: none;
-    border-radius: 8px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn-secondary:hover {
-    background: #d0d0d0;
-}
-
-.btn-sm {
-    padding: 8px 16px;
-    font-size: 0.95rem;
-}
-
-@media (max-width: 768px) {
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .context-controls {
-        width: 100%;
-    }
-    .control-input {
-        width: 100%;
-    }
-    .action-bar {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    .btn-primary {
+    .btn-primary, .btn-secondary {
         width: 100%;
         justify-content: center;
+    }
+    .attendance-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .student-card {
+        padding: 15px;
+    }
+    .student-info {
+        gap: 10px;
     }
 }
 

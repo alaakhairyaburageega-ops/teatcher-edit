@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Rough approximation of the abstract face logo -->
+  <!-- Blue Shape (left face) -->
+  <path d="M50,15 L20,15 L20,55 A35,35 0 0,0 50,90 Z" fill="#2d529f"/>
+  <circle cx="35" cy="35" r="7" fill="#1a3673"/>
+  <!-- Red Shape (right face) -->
+  <path d="M50,25 L80,25 L80,65 A35,35 0 0,1 50,100 Z" fill="#e83033"/>
+  <circle cx="65" cy="45" r="7" fill="#a61c1e"/>
+</svg>

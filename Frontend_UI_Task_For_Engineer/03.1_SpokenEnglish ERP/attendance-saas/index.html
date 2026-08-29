@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نظام إدارة الحضور والانصراف | SaaS Enterprise</title>
+    
+    <!-- Google Fonts (Cairo for professional Arabic) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body :class="{'dark-mode': darkMode}" x-data="attendanceApp" class="saas-body">
+    
+    <div class="saas-layout">
+        <!-- SIDEBAR -->
+        <aside class="saas-sidebar" :class="{'collapsed': sidebarCollapsed}">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <span class="logo-text" x-show="!sidebarCollapsed">أكاديمية المعرفة</span>
+                </div>
+                <button class="toggle-btn" @click="sidebarCollapsed = !sidebarCollapsed">
+                    <svg x-show="!sidebarCollapsed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <svg x-show="sidebarCollapsed" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item" :class="currentView === 'dashboard' ? 'active' : ''" @click.prevent="switchView('dashboard')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    <span x-show="!sidebarCollapsed">لوحة القيادة</span>
+                </a>
+                <a href="#" class="nav-item" :class="currentView === 'attendance' ? 'active' : ''" @click.prevent="switchView('attendance')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span x-show="!sidebarCollapsed">سجل الحضور</span>
+                </a>
+                <a href="#" class="nav-item" :class="currentView === 'employees' ? 'active' : ''" @click.prevent="switchView('employees')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span x-show="!sidebarCollapsed">الموظفون</span>
+                </a>
+                <a href="#" class="nav-item" :class="currentView === 'reports' ? 'active' : ''" @click.prevent="switchView('reports')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span x-show="!sidebarCollapsed">التقارير</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="saas-main">
+            <!-- TOP NAVBAR -->
+            <header class="saas-header">
+                <div class="header-search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" placeholder="البحث السريع...">
+                </div>
+                
+                <div class="header-actions">
+                    <button class="action-btn" @click="darkMode = !darkMode">
+                        <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        <svg x-show="darkMode" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </button>
+                    <button class="action-btn badge-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span class="badge">3</span>
+                    </button>
+                    <div class="user-profile">
+                        <div class="avatar">م</div>
+                        <div class="info">
+                            <span class="name">مدير النظام</span>
+                            <span class="role">Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEWS CONTAINER -->
+            <div class="saas-content">
+                
+                <!-- VIEW 1: DASHBOARD -->
+                <div x-show="currentView === 'dashboard'" x-transition.opacity>
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">نظرة عامة على الحضور</h1>
+                            <p class="page-subtitle">إحصائيات وحالة المؤسسة ليوم <span x-text="todayDate"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Stat Cards -->
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+                            <div class="stat-details">
+                                <span class="stat-label">إجمالي الموظفين</span>
+                                <div class="stat-value">124</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                            <div class="stat-details">
+                                <span class="stat-label">حاضرون اليوم</span>
+                                <div class="stat-value">112</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon red"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></div>
+                            <div class="stat-details">
+                                <span class="stat-label">غائبون</span>
+                                <div class="stat-value">8</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                            <div class="stat-details">
+                                <span class="stat-label">تأخير</span>
+                                <div class="stat-value">4</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="charts-grid">
+                        <!-- Main Trend Chart -->
+                        <div class="chart-card span-2">
+                            <div class="chart-header">
+                                <h3 class="chart-title">منحنى الحضور (الأسابيع الأخيرة)</h3>
+                                <div class="chart-actions">
+                                    <select class="saas-select" style="min-width: 120px;">
+                                        <option>آخر 7 أيام</option>
+                                        <option>آخر 30 يوم</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Distribution Donut -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title">توزيع الحضور اليوم</h3>
+                            </div>
+                            <div class="chart-container" style="height: 300px; display: flex; justify-content: center;">
+                                <canvas id="distChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Department Bar Chart -->
+                        <div class="chart-card span-2">
+                            <div class="chart-header">
+                                <h3 class="chart-title">الحضور حسب الأقسام</h3>
+                            </div>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="deptChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Mini Heatmap placeholder -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3 class="chart-title">خريطة الحضور (Heatmap)</h3>
+                            </div>
+                            <div class="heatmap-grid" id="heatmapGrid">
+                                <!-- Generated via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: ATTENDANCE TABLE -->
+                <div x-show="currentView === 'attendance'" style="display: none;" x-transition.opacity>
+                    <div class="page-header flex-between">
+                        <div>
+                            <h1 class="page-title">سجل الحضور الشامل</h1>
+                        </div>
+                        <div class="actions" style="display: flex; gap: 10px;">
+                            <button class="btn btn-outline">تصدير PDF</button>
+                            <button class="btn btn-primary">تصدير Excel</button>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-filters">
+                            <input type="text" class="saas-input search" placeholder="بحث بالاسم أو الرقم الوظيفي..." x-model="searchQuery">
+                            <select class="saas-select" x-model="filterDept">
+                                <option value="">كل الأقسام</option>
+                                <option value="IT">تقنية المعلومات</option>
+                                <option value="HR">الموارد البشرية</option>
+                                <option value="Finance">المالية</option>
+                            </select>
+                            <select class="saas-select" x-model="filterStatus">
+                                <option value="">كل الحالات</option>
+                                <option value="present">حاضر</option>
+                                <option value="absent">غائب</option>
+                                <option value="late">متأخر</option>
+                            </select>
+                            <input type="date" class="saas-input" x-model="filterDate">
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>الموظف</th>
+                                        <th>القسم</th>
+                                        <th>وقت الدخول</th>
+                                        <th>وقت الخروج</th>
+                                        <th>ساعات العمل</th>
+                                        <th>الحالة</th>
+                                        <th>التأخير</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="emp in filteredEmployees" :key="emp.id">
+                                        <tr>
+                                            <td>
+                                                <div class="td-user">
+                                                    <div class="td-avatar" x-text="emp.name.charAt(0)"></div>
+                                                    <div class="td-user-info">
+                                                        <span class="td-name" x-text="emp.name"></span>
+                                                        <span class="td-id" x-text="emp.id"></span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td x-text="emp.dept"></td>
+                                            <td x-text="emp.checkIn"></td>
+                                            <td x-text="emp.checkOut"></td>
+                                            <td x-text="emp.hours"></td>
+                                            <td>
+                                                <span class="badge-status" :class="'badge-' + emp.status" x-text="emp.statusAr"></span>
+                                            </td>
+                                            <td x-text="emp.delay" :class="{'text-danger': emp.delay !== '-'}"></td>
+                                            <td>
+                                                <button class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: EMPLOYEES -->
+                <div x-show="currentView === 'employees'" style="display: none;" x-transition.opacity>
+                    <div class="page-header flex-between">
+                        <div>
+                            <h1 class="page-title">إدارة الموظفين</h1>
+                        </div>
+                        <button class="btn btn-primary">+ إضافة موظف</button>
+                    </div>
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <h3>قائمة الموظفين</h3>
+                        <p>قائمة الموظفين قيد التطوير...</p>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: REPORTS -->
+                <div x-show="currentView === 'reports'" style="display: none;" x-transition.opacity>
+                    <div class="page-header">
+                        <h1 class="page-title">التقارير المتقدمة</h1>
+                    </div>
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        <h3>نظام التقارير</h3>
+                        <p>نظام تصدير التقارير قيد التطوير...</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+</body>
+</html>

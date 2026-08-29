@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Launchpad | SpokenEnglish Academy</title>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 { margin-top: 0; color: #38bdf8; }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn:hover { background-color: #1d4ed8; }
+        .btn-teacher { background-color: #10b981; }
+        .btn-teacher:hover { background-color: #059669; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SCS Launchpad (Mock)</h1>
+        <p>This is a mock login page for the UI prototype.</p>
+        
+        <button class="btn" onclick="login('admin')">Login as Admin (Auditor)</button>
+        <button class="btn btn-teacher" onclick="login('teacher')">Login as Teacher</button>
+    </div>
+
+    <script>
+        function login(role) {
+            // Set mock tokens so the pages don't redirect back here
+            sessionStorage.setItem('sea_erp_token', 'mock_token_12345');
+            sessionStorage.setItem('sea_user_role', role);
+            sessionStorage.setItem('sea_user_name', role === 'admin' ? 'Super Admin' : 'John Doe');
+            
+            if (role === 'admin') {
+                window.location.href = '../admin/index.html';
+            } else {
+                window.location.href = '../teacher/index.html';
+            }
+        }
+    </script>
+</body>
+</html>

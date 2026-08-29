@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SCS Auditor Dashboard - Master command center for SpokenEnglish Academy curriculum management and forensic oversight.">
+    <title>SCS Auditor Dashboard | SpokenEnglish Academy</title>
+    
+    <!-- Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="./css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+    
+    <!-- Impersonation Red Banner -->
+    <div id="impersonation-banner" style="display: none; background-color: #EE2C36; color: white; text-align: center; padding: 12px; font-weight: 700; width: 100%; position: fixed; top: 0; left: 0; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+        ⚠️ IMPERSONATION MODE ACTIVE: You have full write access to this account.
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="main-dashboard" class="app-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <img src="./assets/org-logo.jpg" alt="SCS Logo" class="admin-logo-img" style="height: 40px; margin-right: 12px; border-radius: 6px;">
+                <span style="font-weight: 800; font-size: 1.1rem; color: var(--primary);" data-i18n="SCS Admin">SCS Admin</span>
+            </div>
+
+            <nav class="admin-tabs">
+                <button class="tab-btn active" data-target="view-teachers" data-i18n="Teacher Profiles">Teacher Profiles</button>
+                <button class="tab-btn" data-target="view-access-matrix" data-i18n="Access Matrix">Access Matrix</button>
+                <button class="tab-btn" data-target="view-chronos" data-i18n="Chronos Command">Chronos Command</button>
+                <button class="tab-btn" data-target="view-security" data-i18n="Security Dial">Security Dial</button>
+                <button class="tab-btn" data-target="view-manifest" data-i18n="Manifest Manager">Manifest Manager</button>
+                <button class="tab-btn" data-target="view-tutorials" data-i18n="Tutorials Manager">Tutorials Manager</button>
+                <button class="tab-btn" data-target="view-requests" data-i18n="Teacher Requests">Teacher Requests <span id="pending-requests-badge" class="badge warning" style="display: none; margin-left: 5px;">0</span></button>
+                <button class="tab-btn" data-target="view-groups" data-i18n="Global Groups Hub">Global Groups Hub</button>
+                <button class="tab-btn" data-target="view-students" data-i18n="Global Student Hub">Global Student Hub</button>
+                <button class="tab-btn" data-target="view-master-attendance" data-i18n="Master Attendance">Master Attendance</button>
+                <button class="tab-btn" data-target="view-archive" data-i18n="Student Archive">Student Archive</button>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <button id="emergency-kill-btn" class="btn-danger" style="width: calc(100% - 40px); margin: 0 20px; font-size: 0.75rem; white-space: nowrap; font-weight: 700; padding: 0.6rem 0.5rem;">🚨 EMERGENCY LOCK</button>
+            </div>
+        </aside>
+
+        <main class="admin-main dashboard-container">
+            <header class="admin-header" style="margin-bottom: 2rem;">
+                <div class="logo-area">
+                    <button id="mobile-menu-btn" class="mobile-menu-btn">☰</button>
+                    <h1 data-i18n="The Auditor">The Auditor <span class="version">v1.0 (MVP)</span></h1>
+                </div>
+                <div class="header-actions" style="display: flex; align-items: center;">
+                    <button id="lang-toggle" class="btn-secondary" style="margin-inline-end: 10px;">🌐 AR</button>
+                    <button id="theme-toggle" class="btn-secondary" style="margin-right: 15px; width: 45px; height: 45px; padding: 0; display: inline-flex; justify-content: center; align-items: center; font-size: 1.2rem;">☀️</button>
+                    <button id="add-teacher-btn" class="btn-secondary" style="margin-right: 10px;">+ Add Teacher</button>
+                    <button id="add-supervisor-btn" class="btn-secondary" style="margin-right: 10px;">+ Add Supervisor</button>
+                    <button id="pilot-toggle-btn" class="btn-secondary" style="margin-right: 10px; border-color: #38bdf8; color: #38bdf8;">🚀 PILOT: ACTIVE</button>
+                    <button id="debug-toggle-btn" class="btn-secondary" style="margin-right: 0; border-color: #9333ea; color: #9333ea;">🛠️ DEBUG: OFF</button>
+                    <button id="logout-btn" class="btn-secondary" style="margin-left: 10px; border-color: var(--brand-red); color: var(--brand-red);">LOGOUT</button>
+                </div>
+            </header>
+            <!-- View: Teacher Management -->
+            <div id="view-teachers" class="view-section active">
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-label" data-i18n="Total Teachers">Total Teachers</span>
+                    <span class="stat-value" id="total-teachers-count">--</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label" data-i18n="Active Sessions">Active Sessions</span>
+                    <span class="stat-value" id="active-sessions-count">--</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label" data-i18n="Device Violations">Device Violations</span>
+                    <span class="stat-value warning" id="violations-count">0</span>
+                </div>
+            </div>
+
+            <!-- Teacher Management Table -->
+            <div class="glass-card table-card">
+                <div class="table-header">
+                    <h2 data-i18n="Teacher Forensic Profiles">Teacher Forensic Profiles</h2>
+                    <input type="text" id="teacher-search" data-i18n-placeholder="Search by name or email..." placeholder="Search by name or email...">
+                </div>
+                <div class="table-scroll">
+                    <table id="teacher-table">
+                        <thead>
+                            <tr>
+                                <th>Teacher</th>
+                                <th>Email</th>
+                                <th>Assigned Levels</th>
+                                <th>Hardware DNA</th>
+                                <th>Last Seen</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-list-body">
+                            <!-- Populated by JS -->
+                            <tr><td colspan="7" class="loading">Loading data from NeonDB...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div> <!-- End View: Teacher Management -->
+
+            <!-- View: Manifest Manager -->
+            <div id="view-manifest" class="view-section hidden">
+                <div class="glass-card manifest-controls">
+                    <h2>Curriculum Sovereignty</h2>
+                    <p class="subtext">Define page ranges for the Zero-Trust unit lock system.</p>
+                    
+                    <div class="manifest-selectors">
+                        <select id="manifest-level-select">
+                            <option value="">-- Select Level --</option>
+                            <option value="L0">Starter (L0)</option>
+                            <option value="L1">Level 1</option>
+                            <option value="L2">Level 2</option>
+                            <option value="L3">Level 3</option>
+                            <option value="L4">Level 4</option>
+                            <option value="L5">Level 5</option>
+                            <option value="L6">Level 6</option>
+                        </select>
+
+                        <select id="manifest-book-select" disabled>
+                            <option value="">-- Select Book Type --</option>
+                            <option value="student_book">Student Book</option>
+                            <option value="work_book">Work Book</option>
+                            <option value="teacher_book">Teacher Guide</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="manifest-editor" class="glass-card table-card hidden">
+                    <div class="table-header">
+                        <h2>Unit Page Ranges</h2>
+                        <button id="save-manifest-btn" class="btn-primary">Save Manifest</button>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="manifest-table">
+                            <thead>
+                                <tr>
+                                    <th>Unit #</th>
+                                    <th>Start Page</th>
+                                    <th>End Page</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="manifest-list-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                        <button id="add-unit-btn" class="btn-secondary" style="margin: 1rem; width: calc(100% - 2rem);">+ Add Unit</button>
+                    </div>
+                </div>
+            </div> <!-- End View: Manifest Manager -->
+
+            <!-- View: Tutorials Manager -->
+            <div id="view-tutorials" class="view-section hidden" x-data="tutorialsManager()">
+                <div class="glass-card table-card" style="margin-bottom: 20px;">
+                    <div class="table-header">
+                        <h2>Add New Tutorial</h2>
+                    </div>
+                    <form @submit.prevent="addTutorial" style="padding: 15px; display: flex; flex-wrap: wrap; gap: 15px;">
+                        <div class="form-group" style="flex: 1; min-width: 250px;">
+                            <label>YouTube URL</label>
+                            <input type="url" x-model="newTutorial.youtube_url" class="control-input" placeholder="https://youtu.be/..." required>
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 200px;">
+                            <label>Title</label>
+                            <input type="text" x-model="newTutorial.title" class="control-input" placeholder="e.g., How to add students" required>
+                        </div>
+                        <div class="form-group" style="flex: 2; min-width: 300px;">
+                            <label>Description</label>
+                            <input type="text" x-model="newTutorial.description" class="control-input" placeholder="Brief notes for staff">
+                        </div>
+                        <div class="form-group" style="width: 100px;">
+                            <label>Order</label>
+                            <input type="number" x-model="newTutorial.display_order" class="control-input" value="0">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn-primary" :disabled="isAdding" style="height: 40px; padding: 0 20px;">
+                                <span x-text="isAdding ? 'Adding...' : '+ Add Video'"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="glass-card table-card">
+                    <div class="table-header">
+                        <h2>Tutorials Library</h2>
+                        <button class="btn-secondary" @click="loadTutorials">🔄 Refresh</button>
+                    </div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">Order</th>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>YouTube ID</th>
+                                    <th style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="isLoading">
+                                    <tr><td colspan="5" class="loading">Loading tutorials...</td></tr>
+                                </template>
+                                <template x-if="!isLoading && tutorials.length === 0">
+                                    <tr><td colspan="5" style="text-align: center; padding: 20px;">No tutorials found. Add one above.</td></tr>
+                                </template>
+                                <template x-for="tutorial in tutorials" :key="tutorial.id">
+                                    <tr>
+                                        <td x-text="tutorial.display_order"></td>
+                                        <td x-text="tutorial.title" style="font-weight: bold;"></td>
+                                        <td x-text="tutorial.description || '-'"></td>
+                                        <td><a :href="'https://youtu.be/' + tutorial.youtube_id" target="_blank" x-text="tutorial.youtube_id" style="color: var(--accent-glow);"></a></td>
+                                        <td>
+                                            <button class="btn-danger" style="padding: 4px 8px; font-size: 0.8rem;" @click="deleteTutorial(tutorial.id)" :disabled="isDeleting === tutorial.id">
+                                                <span x-text="isDeleting === tutorial.id ? '...' : 'Delete'"></span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- End View: Tutorials Manager -->
+
+            <!-- View: Teacher Requests -->
+            <div id="view-requests" class="view-section hidden">
+                <div class="glass-card table-card">
+                    <div class="table-header">
+                        <h2>Pending Teacher Requests</h2>
+                        <div class="header-actions" style="display: flex; gap: 15px; align-items: center;">
+                            <label class="switch" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <span style="font-size: 0.9rem; font-weight: 600; color: var(--accent-glow);">TRUST MODE</span>
+                                <div style="position: relative; display: inline-block; width: 40px; height: 20px;">
+                                    <input type="checkbox" id="trust-mode-toggle" style="opacity: 0; width: 0; height: 0;">
+                                    <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+                                </div>
+                            </label>
+                            <button id="refresh-requests-btn" class="btn-secondary">🔄 Refresh Queue</button>
+                        </div>
+                    </div>
+                    <p class="subtext">Review and approve roster changes submitted by teachers.</p>
+                    <div class="table-scroll">
+                        <table id="requests-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Teacher</th>
+                                    <th>Type</th>
+                                    <th>Details</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requests-list-body">
+                                <tr><td colspan="5" class="loading">Loading pending requests...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- End View: Teacher Requests -->
+
+            <!-- View: Global Groups Hub -->
+            <div id="view-groups" class="view-section hidden" x-data="groupsHubInit()">
+                <div class="glass-card table-card">
+                    <div class="table-header">
+                        <div style="display: flex; align-items: baseline; gap: 15px;">
+                            <h2 data-i18n="Global Groups Hub">Global Groups Hub</h2>
+                            <span class="badge" style="font-size: 1rem; padding: 4px 8px; background: var(--glass-border); color: var(--text-primary);">
+                                <span x-text="groups.length"></span> Total Groups
+                            </span>
+                        </div>
+                        <div class="header-actions" style="display: flex; gap: 10px;">
+                            <button class="btn-secondary" @click="loadGroups()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Group Name</th>
+                                    <th>Level</th>
+                                    <th>Teacher</th>
+                                    <th>Students</th>
+                                    <th>Location</th>
+                                    <th>Mode</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="isLoading">
+                                    <tr><td colspan="7" class="loading">Loading groups...</td></tr>
+                                </template>
+                                <template x-if="!isLoading && groups.length === 0">
+                                    <tr><td colspan="7" style="text-align: center; padding: 20px;">No groups found.</td></tr>
+                                </template>
+                                <template x-for="group in groups" :key="group.id">
+                                    <tr>
+                                        <td x-text="group.name" style="font-weight: 600;"></td>
+                                        <td x-text="'Level ' + group.level"></td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                                <span x-text="group.teacher_name || 'Unassigned'"></span>
+                                                <button x-show="group.transfer_history && group.transfer_history.length > 0" 
+                                                        class="btn-ghost" 
+                                                        style="font-size: 0.7rem; padding: 2px 6px; align-self: flex-start; color: var(--warning-yellow);"
+                                                        @click="showHistory(group)">View History</button>
+                                            </div>
+                                        </td>
+                                        <td x-text="group.active_students"></td>
+                                        <td x-text="(group.city || 'Unknown') + ' - ' + (group.branch || 'Unknown')"></td>
+                                        <td>
+                                            <span class="badge" 
+                                                  x-text="group.study_mode ? group.study_mode.toUpperCase() : 'OFFLINE'" 
+                                                  :class="{'warning': group.study_mode === 'online', 'success': group.study_mode === 'hybrid'}"></span>
+                                        </td>
+                                        <td>
+                                            <button class="btn-primary" style="padding: 4px 8px; font-size: 0.8rem;" @click="openReassignModal(group)">Reassign Teacher</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reassign Teacher Modal -->
+                <div x-show="showReassignModal" class="modal overlay" style="display: none;" x-transition>
+                    <div class="glass-card modal-card" @click.stop>
+                        <header>
+                            <h2>Reassign Teacher (Mid-Level Transfer)</h2>
+                            <button class="close-modal" @click="closeModal()">&times;</button>
+                        </header>
+                        <div style="padding: 15px; background: rgba(238, 44, 54, 0.1); border-left: 4px solid var(--brand-red); margin-bottom: 20px; font-size: 0.9em;">
+                            <strong>Note:</strong> This is for emergency mid-level transfers. Past attendance and payroll will stay securely locked to the old teacher.
+                        </div>
+                        <form @submit.prevent="submitReassign()">
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label>Target Group</label>
+                                <input type="text" class="control-input" x-bind:value="reassignData.groupName + ' (Level ' + reassignData.groupLevel + ')'" disabled style="opacity: 0.7;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label>Current Teacher</label>
+                                <input type="text" class="control-input" x-bind:value="reassignData.oldTeacherName" disabled style="opacity: 0.7; color: var(--warning-yellow);">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 30px;">
+                                <label>Select New Teacher</label>
+                                <select x-model="reassignData.newTeacherId" class="control-input" required>
+                                    <option value="">-- Choose New Teacher --</option>
+                                    <template x-for="t in teachers" :key="t.id">
+                                        <option :value="t.id" x-text="t.full_name + ' (' + t.email + ')'" x-show="t.id !== reassignData.oldTeacherId"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn-ghost" @click="closeModal()">Cancel</button>
+                                <button type="submit" class="btn-primary" style="background-color: var(--brand-red);" :disabled="isSubmitting">
+                                    <span x-text="isSubmitting ? 'Transferring...' : 'Confirm Transfer'"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Transfer History Modal -->
+                <div x-show="showHistoryModal" class="modal overlay" style="display: none;" x-transition>
+                    <div class="glass-card modal-card" @click.stop>
+                        <header>
+                            <h2>Teacher Transfer History</h2>
+                            <button class="close-modal" @click="showHistoryModal = false">&times;</button>
+                        </header>
+                        <div style="padding-right: 10px; max-height: 50vh; overflow-y: auto;">
+                            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
+                                <template x-for="(log, idx) in selectedHistory" :key="idx">
+                                    <li style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; border-left: 3px solid var(--accent-glow);" x-text="log"></li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div class="modal-actions" style="margin-top: 20px;">
+                            <button class="btn-secondary" @click="showHistoryModal = false">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End View: Global Groups Hub -->
+
+            <!-- View: Global Student Hub -->
+            <div id="view-students" class="view-section hidden" x-data="studentHubInit()">
+                <div class="glass-card table-card">
+                    <div class="table-header">
+                        <div style="display: flex; align-items: baseline; gap: 15px;">
+                            <h2 data-i18n="Global Student Hub">Global Student Hub</h2>
+                            <span class="badge" style="font-size: 1rem; padding: 4px 8px; background: var(--glass-border); color: var(--text-primary);">
+                                <span x-text="filteredStudents.length"></span>
+                                <span x-show="filteredStudents.length !== students.length" x-text="'/ ' + students.length + ' Total'" style="color: var(--text-muted); margin-left: 4px;"></span>
+                            </span>
+                        </div>
+                        <div class="header-actions" style="display: flex; gap: 10px;">
+                            <button class="btn-secondary" @click="showAddModal = true">+ Add Student</button>
+                            <button class="btn-secondary" @click="loadStudents()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <input type="text" x-model="filters.search" placeholder="Search by name, email, phone..." class="control-input" style="flex: 1; min-width: 200px;">
+                        <select x-model="filters.city" class="control-input" style="width: auto;">
+                            <option value="">All Cities</option>
+                            <template x-for="city in uniqueCities" :key="city">
+                                <option :value="city" x-text="city"></option>
+                            </template>
+                        </select>
+                        <select x-model="filters.branch" class="control-input" style="width: auto;">
+                            <option value="">All Branches</option>
+                            <template x-for="branch in uniqueBranches" :key="branch">
+                                <option :value="branch" x-text="branch"></option>
+                            </template>
+                        </select>
+                        <select x-model="filters.studyMode" class="control-input" style="width: auto;">
+                            <option value="">All Modes</option>
+                            <option value="offline">Offline</option>
+                            <option value="online">Online</option>
+                            <option value="hybrid">Hybrid</option>
+                        </select>
+                        <select x-model="filters.level" class="control-input" style="width: auto;">
+                            <option value="">All Levels</option>
+                            <template x-for="level in uniqueLevels" :key="level">
+                                <option :value="level" x-text="'Level ' + level"></option>
+                            </template>
+                        </select>
+                        <select x-model="filters.teacher" class="control-input" style="width: auto;">
+                            <option value="">All Teachers</option>
+                            <template x-for="teacher in uniqueTeachers" :key="teacher">
+                                <option :value="teacher" x-text="teacher"></option>
+                            </template>
+                        </select>
+                        <select x-model="filters.group" class="control-input" style="width: auto;">
+                            <option value="">All Groups</option>
+                            <template x-for="group in filteredGroups" :key="group">
+                                <option :value="group" x-text="group"></option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Level</th>
+                                    <th>Class</th>
+                                    <th>Teacher</th>
+                                    <th>Location</th>
+                                    <th>Study Mode</th>
+                                    <th>Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="isLoading">
+                                    <tr><td colspan="8" class="loading">Loading students...</td></tr>
+                                </template>
+                                <template x-if="!isLoading && filteredStudents.length === 0">
+                                    <tr><td colspan="8" style="text-align: center; padding: 20px;">No students found matching criteria.</td></tr>
+                                </template>
+                                <template x-for="student in filteredStudents" :key="student.student_id">
+                                    <tr>
+                                        <td x-text="student.first_name + ' ' + (student.middle_name ? student.middle_name + ' ' : '') + student.last_name"></td>
+                                        <td x-text="'L' + student.class_level"></td>
+                                        <td x-text="student.class_name"></td>
+                                        <td x-text="student.teacher_name || 'N/A'"></td>
+                                        <td x-text="student.city + ' - ' + student.branch_name"></td>
+                                        <td>
+                                            <span class="badge" 
+                                                  x-text="student.study_mode === 'hybrid' ? 'Hybrid (' + (student.hybrid_preference === 'remote' ? 'Remote' : 'In-Person') + ')' : (student.study_mode === 'online' ? 'Online' : 'Offline')" 
+                                                  :class="{'warning': student.study_mode === 'online', 'success': student.study_mode === 'hybrid'}"></span>
+                                        </td>
+                                        <td style="font-size: 0.85em; opacity: 0.8;">
+                                            <div x-show="student.email" x-text="student.email"></div>
+                                            <div x-show="student.phone" x-text="student.phone"></div>
+                                        </td>
+                                        <td>
+                                            <button class="btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;" @click="openEditModal(student)">Edit</button>
+                                            <button class="btn-secondary" style="padding: 4px 8px; font-size: 0.8rem; color: var(--danger); border-color: var(--danger);" @click="confirmSoftDelete(student)">Remove</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Alpine Modals for Add/Edit -->
+                <div x-show="showAddModal || showEditModal" class="modal overlay" style="display: none;" x-transition>
+                    <div class="glass-card modal-card" @click.stop>
+                        <header>
+                            <h2 x-text="showEditModal ? 'Edit Student' : 'Add New Student'"></h2>
+                            <button class="close-modal" @click="closeModals()">&times;</button>
+                        </header>
+                        <form @submit.prevent="showEditModal ? submitEdit() : submitAdd()" style="max-height: 70vh; overflow-y: auto; padding-right: 10px;">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" x-model="formData.firstName" class="control-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Middle Name</label>
+                                <input type="text" x-model="formData.middleName" class="control-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" x-model="formData.lastName" class="control-input" required>
+                            </div>
+                            <div style="margin-top: 16px;">
+                                <a href="#" @click.prevent="showContactOptions = !showContactOptions" style="color: var(--primary-color); font-size: 13px; text-decoration: none;" x-text="showContactOptions ? '− Hide Contact Options' : '+ Add Contact Options (Email/Phone)'"></a>
+                            </div>
+                            <div x-show="showContactOptions" style="display: none;">
+                                <div class="form-group" style="margin-top: 16px;">
+                                    <label>Email</label>
+                                    <input type="email" x-model="formData.email" class="control-input">
+                                </div>
+                                <div class="form-group" style="margin-top: 16px;">
+                                    <label>Phone (E.164 format e.g., +218...)</label>
+                                    <input type="text" x-model="formData.phone" class="control-input" placeholder="+218912345678">
+                                </div>
+                            </div>
+                            <div class="form-group" x-show="getSelectedClass()?.study_mode === 'hybrid'">
+                                <label>Hybrid Preference</label>
+                                <select x-model="formData.hybridPreference" class="control-input">
+                                    <option value="in-person">In-Person</option>
+                                    <option value="remote">Remote (Online)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Assign to Class</label>
+                                <select x-model="formData.classId" class="control-input" required>
+                                    <option value="">-- Select Class --</option>
+                                    <template x-for="cls in availableClasses" :key="cls.id">
+                                        <option :value="cls.id" x-text="cls.city + ' - ' + cls.branch + ' | L' + cls.level + ' [' + (cls.study_mode || 'offline').toUpperCase() + '] | ' + cls.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="modal-actions" style="margin-top: 20px;">
+                                <button type="button" class="btn-ghost" @click="closeModals()">Cancel</button>
+                                <button type="submit" class="btn-primary" x-text="showEditModal ? 'Save Changes' : 'Add Student'"></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div> <!-- End View: Global Student Hub -->
+
+            <!-- View: Master Attendance -->
+            <div id="view-master-attendance" class="view-section hidden">
+                <div class="glass-card table-card">
+                    <div class="table-header" style="display: flex; flex-direction: column; gap: 15px; align-items: flex-start;">
+                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                            <h2>Master Attendance Dashboard <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">Matrix View</span></h2>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <label class="switch" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <span style="font-size: 0.9rem; font-weight: 600; color: var(--warning-yellow);">ENABLE EDIT</span>
+                                    <div style="position: relative; display: inline-block; width: 40px; height: 20px;">
+                                        <input type="checkbox" id="master-attendance-edit-toggle" style="opacity: 0; width: 0; height: 0;">
+                                        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+                                    </div>
+                                </label>
+                                <button id="refresh-master-attendance-btn" class="btn-primary" style="padding: 8px 16px; border-radius: 4px;">Refresh</button>
+                                <button id="export-master-attendance-btn" class="btn-secondary" disabled>Export Matrix to CSV</button>
+                            </div>
+                        </div>
+                        <div style="background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent-glow); padding: 10px 15px; border-radius: 4px; width: 100%;">
+                            <strong style="color: var(--accent-glow);">Note:</strong> Total hours are calculated assuming 2 hours per class (Summer Camp Standard). 
+                            <strong style="color: var(--brand-red); margin-left: 10px;">⚠️ Red Flag:</strong> If the total "Held" count is suspiciously low, the teacher may be bleeding classes.
+                        </div>
+                        
+                        <!-- Summary Metrics -->
+                        <div id="matrix-summary-metrics" style="display: none; width: 100%; gap: 15px; margin-top: 10px; flex-wrap: wrap;">
+                            <div class="stat-card" style="flex: 1; min-width: 150px; padding: 15px;">
+                                <span class="stat-label">Total Held</span>
+                                <span class="stat-value" id="metric-total-held">0</span>
+                            </div>
+                            <div class="stat-card" style="flex: 1; min-width: 150px; padding: 15px;">
+                                <span class="stat-label">Total Canceled</span>
+                                <span class="stat-value warning" id="metric-total-canceled">0</span>
+                            </div>
+                            <div class="stat-card" style="flex: 1; min-width: 150px; padding: 15px;">
+                                <span class="stat-label">Avg Attendance</span>
+                                <span class="stat-value" id="metric-avg-attendance">0%</span>
+                            </div>
+                        </div>
+
+                        <!-- Matrix Controls -->
+                        <div class="header-actions" style="display: flex; gap: 15px; width: 100%; flex-wrap: wrap; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                            <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px;">
+                                <label style="font-size: 0.8rem; opacity: 0.7;">1. Select Teacher</label>
+                                <select id="matrix-teacher-select" class="control-input">
+                                    <option value="">-- Select Teacher --</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px;">
+                                <label style="font-size: 0.8rem; opacity: 0.7;">2. Select Group</label>
+                                <select id="matrix-group-select" class="control-input" disabled>
+                                    <option value="">-- Select Group --</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 120px;">
+                                <label style="font-size: 0.8rem; opacity: 0.7;">Start Date</label>
+                                <input type="date" id="matrix-start-date" class="control-input">
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 120px;">
+                                <label style="font-size: 0.8rem; opacity: 0.7;">End Date</label>
+                                <input type="date" id="matrix-end-date" class="control-input">
+                            </div>
+
+                            <div style="display: flex; align-items: flex-end;">
+                                <button id="load-matrix-btn" class="btn-primary" style="height: 42px;" disabled>Load Matrix</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-scroll" style="border: none; padding: 0;">
+                        <!-- The AttendanceGrid component will inject itself here -->
+                        <div id="tactical-grid-container" style="min-height: 400px; display: flex; flex-direction: column;">
+                            <div class="glass-card" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                                Please select a Teacher, Group, and Date Range to generate the Tactical Grid.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End View: Master Attendance -->
+
+            <!-- View: Student Archive -->
+            <div id="view-archive" class="view-section hidden">
+                <div class="glass-card table-card">
+                    <div class="table-header">
+                        <h2 data-i18n="Student Archive">Student Archive <span class="badge warning">Inactive Records</span></h2>
+                        <button id="refresh-archive-btn" class="btn-secondary">🔄 Refresh Archive</button>
+                    </div>
+                    <p class="subtext">Review and permanently delete students that have been removed by teachers.</p>
+                    <div class="table-scroll">
+                        <table id="archive-table">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Original Class</th>
+                                    <th>Teacher</th>
+                                    <th>Branch</th>
+                                    <th>Date Removed</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archive-list-body">
+                                <tr><td colspan="6" class="loading">Loading archived students...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- End View: Student Archive -->
+
+            <!-- View: Access Matrix (Audit) -->
+            <div id="view-access-matrix" class="view-section hidden">
+                <div class="glass-card table-card">
+                    <div class="table-header">
+                        <h2 data-i18n="Access Matrix">Access Matrix <span class="badge">Audit Preview</span></h2>
+                        <p class="subtext">Overview of all granular level and unit permissions across the academy.</p>
+                    </div>
+                    <div class="table-scroll">
+                        <table id="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th>Teacher</th>
+                                    <th>Status</th>
+                                    <th>Granular Access Mapping</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matrix-list-body">
+                                <tr><td colspan="3" class="loading">Loading permissions data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- End View: Access Matrix -->
+
+            <!-- View: Chronos Command -->
+            <div id="view-chronos" class="view-section hidden">
+                <!-- Push Notifications MVP -->
+                <div class="glass-card table-card" style="margin-bottom: 20px;" x-data="{ broadcastMessage: '', isSending: false }">
+                    <div class="table-header">
+                        <h2>📣 PWA Broadcast Command</h2>
+                    </div>
+                    <p class="subtext">Push notifications directly to the devices of all opted-in staff members.</p>
+                    <div style="display: flex; gap: 10px; margin-top: 15px; padding: 10px; align-items: flex-end;">
+                        <textarea x-model="broadcastMessage" placeholder="Type your message here (e.g., 'Good Night ツ')" class="control-input" style="flex: 1; min-height: 80px; resize: vertical;" @keydown.enter.prevent="sendBroadcast(broadcastMessage); broadcastMessage = ''"></textarea>
+                        <button class="btn-primary" :disabled="!broadcastMessage || isSending" @click="sendBroadcast(broadcastMessage); broadcastMessage = ''" style="height: 40px;">
+                            <span x-text="isSending ? 'Sending...' : 'Broadcast to Team'"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card table-card">
+                    <div class="table-header">
+                        <h2 data-i18n="Chronos Command">Chronos Command <span class="badge">Timeline Mastery</span></h2>
+                        <button id="refresh-chronos-btn" class="btn-secondary">🔄 Sync Timelines</button>
+                    </div>
+                    <p class="subtext" style="padding: 0 1.5rem 1rem;">All levels transition to the next unit every <strong>Friday at 05:00 AM (GMT+2)</strong>.</p>
+                    <div class="table-scroll">
+                        <table id="chronos-table">
+                            <thead>
+                                <tr>
+                                    <th>Teacher</th>
+                                    <th>Active Levels & Start Dates</th>
+                                    <th>Global Bypass</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chronos-list-body">
+                                <!-- Populated by JS -->
+                                <tr><td colspan="4" class="loading">Loading timelines...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- End View: Chronos Command -->
+
+            <!-- View: Security Dial -->
+            <div id="view-security" class="view-section hidden">
+                <div class="glass-card">
+                    <div class="table-header">
+                        <h2>Administrative Security Dial</h2>
+                        <button id="run-migration-btn" class="btn-danger" style="font-size: 0.7rem; opacity: 0.5;">RUN DB MIGRATION V2</button>
+                        <button id="run-migration-v3-btn" class="btn-danger" style="font-size: 0.7rem; opacity: 0.8; margin-left: 10px; background: var(--brand-red);">EVOLVE SURGICAL OVERRIDES (V3)</button>
+                        <div class="status-badge active">LIVE SYSTEM CONTROL</div>
+                    </div>
+                    
+                    <div class="security-dial-container">
+                        <div class="dial-controls">
+                            <!-- Opacity Control -->
+                            <div class="control-group">
+                                <div class="control-header">
+                                    <h3>Watermark Opacity</h3>
+                                    <span id="opacity-val" class="control-value">0.15</span>
+                                </div>
+                                <div class="slider-wrapper">
+                                    <input type="range" id="dial-opacity" min="0.05" max="0.5" step="0.01" value="0.15">
+                                </div>
+                                <p class="forensic-subtext">Higher values improve deterrent but may distract from curriculum content.</p>
+                            </div>
+
+                            <!-- Density Control -->
+                            <div class="control-group">
+                                <div class="control-header">
+                                    <h3>Mesh Density (Aggression)</h3>
+                                    <span id="density-val" class="control-value">5</span>
+                                </div>
+                                <div class="slider-wrapper">
+                                    <input type="range" id="dial-density" min="1" max="10" step="1" value="5">
+                                </div>
+                                <p class="forensic-subtext">Aggression level: 1 (Sparse) to 10 (Dense). <strong style="color: var(--brand-red)">⚠️ High density may lag older hardware.</strong></p>
+                            </div>
+
+                            <!-- Forensic Field Selection -->
+                            <div class="control-group">
+                                <div class="control-header">
+                                    <h3>Forensic Data Fields</h3>
+                                </div>
+                                <div class="field-selection-grid">
+                                    <label class="field-checkbox">
+                                        <input type="checkbox" id="field-name" checked>
+                                        <span class="checkbox-label">User Name</span>
+                                    </label>
+                                    <label class="field-checkbox">
+                                        <input type="checkbox" id="field-date" checked>
+                                        <span class="checkbox-label">Access Date</span>
+                                    </label>
+                                    <label class="field-checkbox">
+                                        <input type="checkbox" id="field-dna">
+                                        <span class="checkbox-label">Device DNA</span>
+                                    </label>
+                                </div>
+                                <p class="forensic-subtext">Choose which identifiers are embedded in the watermark. <br><strong>Default: Name + Date.</strong></p>
+                            </div>
+
+                            <!-- Global Visibility Toggle (HIGH STAKES) -->
+                            <div class="control-group warning-zone">
+                                <div class="control-header">
+                                    <h3 style="color: var(--brand-red)">Global Watermark Visibility</h3>
+                                    <label class="switch">
+                                        <input type="checkbox" id="dial-enabled" checked>
+                                        <span class="slider round alert-slider"></span>
+                                    </label>
+                                </div>
+                                <p class="forensic-subtext"><strong>WARNING:</strong> Disabling the watermark removes all forensic protection. Content becomes vulnerable to untraceable duplication.</p>
+                            </div>
+
+                            <div class="dial-actions">
+                                <button id="save-security-btn" class="btn-primary">Apply Security Configuration</button>
+                            </div>
+                        </div>
+
+                        <div class="preview-area">
+                            <div class="preview-canvas-wrapper">
+                                <canvas id="security-preview-canvas"></canvas>
+                                <div class="preview-overlay">
+                                    <div class="sample-content">
+                                        <div style="width: 60%; height: 20px; background: #eee; margin-bottom: 10px;"></div>
+                                        <div style="width: 80%; height: 15px; background: #f5f5f5; margin-bottom: 5px;"></div>
+                                        <div style="width: 70%; height: 15px; background: #f5f5f5;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="preview-label">Live Forensic Preview (Simulated Page)</p>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End View: Security Dial -->
+
+        </main>
+    </div>
+
+    <!-- Add Teacher Modal -->
+    <div id="add-teacher-modal" class="modal overlay hidden">
+        <div class="glass-card modal-card">
+            <header>
+                <h2>Invite New Teacher</h2>
+                <button class="close-modal">&times;</button>
+            </header>
+            <form id="add-teacher-form">
+                <div class="form-group">
+                    <label for="new-teacher-name">Full Name</label>
+                    <input type="text" id="new-teacher-name" required placeholder="e.g., John Doe" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="new-teacher-email">Email Address</label>
+                    <input type="email" id="new-teacher-email" required placeholder="e.g., john@spokenenglish.com" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Assigned Levels (Check all that apply)</label>
+                    <div class="checkbox-grid" id="add-levels-grid">
+                        <label><input type="checkbox" value="Starter"> Starter (L0)</label>
+                        <label><input type="checkbox" value="Level 1"> Level 1</label>
+                        <label><input type="checkbox" value="Level 2"> Level 2</label>
+                        <label><input type="checkbox" value="Level 3"> Level 3</label>
+                        <label><input type="checkbox" value="Level 4"> Level 4</label>
+                        <label><input type="checkbox" value="Level 5"> Level 5</label>
+                        <label><input type="checkbox" value="Level 6"> Level 6</label>
+                    </div>
+                </div>
+                <div class="form-group master-access-group">
+                    <label style="display: flex; align-items: center; gap: 10px; color: var(--warning-yellow);">
+                        <input type="checkbox" id="add-master-access"> 
+                        <strong>Grant Master Access (All Units)</strong>
+                    </label>
+                </div>
+                <!-- CHRONOS CONTROLS -->
+                <div class="form-group chronos-group" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--academy-blue);">
+                    <label style="color: var(--accent-glow); margin-bottom: 10px; display: block;">⏳ CHRONOS ENGINE</label>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="font-size: 0.9em; opacity: 0.8;">Course Start Date:</label>
+                        <input type="date" id="add-start-date">
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; font-size: 0.9em; margin-top: 5px;">
+                            <input type="checkbox" id="add-time-bypass"> 
+                            <span>Bypass Time-Lock (Unlock All Assigned)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group surgical-overrides-group" style="margin-top: 15px; padding: 15px; background: rgba(238, 44, 54, 0.1); border-radius: 8px; border: 1px solid var(--brand-red);">
+                    <label style="color: var(--brand-red); margin-bottom: 5px; display: block;">🎯 SURGICAL PAGE OVERRIDES</label>
+                    <div id="add-overrides-list" class="overrides-container">
+                        <!-- Rows added via JS -->
+                    </div>
+                    <button type="button" id="add-override-btn-new" class="btn-secondary btn-add-override">+ Add Page Override</button>
+                    <p class="subtext" style="margin-top: 10px; font-size: 0.75rem;">Specific page numbers that should ALWAYS be unlocked for specific books.</p>
+                </div>
+                <div class="form-group units-assignment-group" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <label>Specific Unit Assignment <span style="font-size: 0.8em; opacity: 0.7;">(Updates based on selected levels)</span></label>
+                    <div id="add-units-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; max-height: 200px; overflow-y: auto; padding-right: 5px;">
+                        <p style="opacity: 0.5; font-style: italic; font-size: 0.9em;">Select a level above to assign specific units.</p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-ghost close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Generate Invite</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Supervisor Modal -->
+    <div id="add-supervisor-modal" class="modal overlay hidden">
+        <div class="glass-card modal-card">
+            <header>
+                <h2>Create Supervisor Account</h2>
+                <button class="close-modal">&times;</button>
+            </header>
+            <form id="add-supervisor-form">
+                <div class="form-group">
+                    <label for="supervisor-name">Display Name</label>
+                    <input type="text" id="supervisor-name" required placeholder="e.g., Mr. Ahmed" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="supervisor-email">Email Address</label>
+                    <input type="email" id="supervisor-email" required placeholder="ahmed@spokenenglish.academy" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="supervisor-password">Initial Password</label>
+                    <input type="password" id="supervisor-password" required placeholder="••••••••">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-ghost close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Supervisor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Supervisor Modal -->
+    <div id="edit-supervisor-modal" class="modal overlay hidden">
+        <div class="glass-card modal-card">
+            <header>
+                <h2>Edit Supervisor Account</h2>
+                <button class="close-modal">&times;</button>
+            </header>
+            <form id="edit-supervisor-form">
+                <input type="hidden" id="edit-supervisor-id">
+                <div class="form-group">
+                    <label for="edit-supervisor-name">Display Name</label>
+                    <input type="text" id="edit-supervisor-name" required placeholder="e.g., Mr. Ahmed" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="edit-supervisor-email">Email Address</label>
+                    <input type="email" id="edit-supervisor-email" required placeholder="ahmed@spokenenglish.academy" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="edit-supervisor-password">New Password (Leave blank to keep current)</label>
+                    <input type="password" id="edit-supervisor-password" placeholder="••••••••">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-ghost close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Levels Modal -->
+    <div id="edit-levels-modal" class="modal overlay hidden">
+        <div class="glass-card modal-card wide">
+            <header>
+                <h2>Teacher Master Control</h2>
+                <button class="close-modal">&times;</button>
+            </header>
+            <form id="edit-levels-form">
+                <input type="hidden" id="edit-teacher-id">
+                
+                <div class="modal-grid-3">
+                    <!-- COLUMN 1: FOUNDATION -->
+                    <div class="modal-column">
+                        <div class="modal-column-header">🏛️ Foundation</div>
+                        <div class="form-group">
+                            <label>Teacher Profile</label>
+                            <div id="edit-teacher-display-name" style="color: var(--accent-glow); font-weight: 600; font-size: 1.1rem; margin-bottom: 10px;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Assigned Levels</label>
+                            <div class="checkbox-grid" id="edit-levels-grid">
+                                <label><input type="checkbox" value="Starter"> Starter (L0)</label>
+                                <label><input type="checkbox" value="Level 1"> Level 1</label>
+                                <label><input type="checkbox" value="Level 2"> Level 2</label>
+                                <label><input type="checkbox" value="Level 3"> Level 3</label>
+                                <label><input type="checkbox" value="Level 4"> Level 4</label>
+                                <label><input type="checkbox" value="Level 5"> Level 5</label>
+                                <label><input type="checkbox" value="Level 6"> Level 6</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 2: TIMELINE & MASTER -->
+                    <div class="modal-column">
+                        <div class="modal-column-header">⏳ Timeline & Sovereignty</div>
+                        <div class="form-group" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                            <label style="color: var(--accent-glow);">Chronos Engine</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                                <label style="font-size: 0.8em; opacity: 0.8;">Course Start Date:</label>
+                                <input type="date" id="edit-start-date">
+                            </div>
+                            <label style="display: flex; align-items: center; gap: 10px; color: var(--accent-glow); cursor: pointer;">
+                                <input type="checkbox" id="edit-time-bypass"> 
+                                <strong style="font-size: 0.9rem;">Global Time-Lock Bypass</strong>
+                            </label>
+                            <p class="subtext" style="font-size: 0.7rem; margin-top: 5px;">Unlock ALL units within assigned levels regardless of schedule.</p>
+                        </div>
+
+                        <div class="form-group master-access-group" style="background: rgba(251, 191, 36, 0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(251, 191, 36, 0.2);">
+                            <label style="display: flex; align-items: center; gap: 10px; color: var(--warning-yellow); cursor: pointer;">
+                                <input type="checkbox" id="edit-master-access"> 
+                                <strong style="font-size: 0.9rem;">Grant Master Access</strong>
+                            </label>
+                            <p class="subtext" style="font-size: 0.7rem; margin-top: 5px;">Bypasses ALL restrictions across the entire academy.</p>
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 3: PRECISION CONTROL -->
+                    <div class="modal-column">
+                        <div class="modal-column-header">🎯 Precision Control</div>
+                        <div class="form-group surgical-overrides-group" style="background: rgba(238, 44, 54, 0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(238, 44, 54, 0.2);">
+                            <label style="color: var(--brand-red); margin-bottom: 10px; display: block;">Surgical Page Overrides</label>
+                            <div id="edit-overrides-list" class="overrides-container">
+                                <!-- Rows added via JS -->
+                            </div>
+                            <button type="button" id="edit-add-override-btn" class="btn-secondary btn-add-override" style="width: 100% !important;">+ Add Override</button>
+                        </div>
+
+                        <div class="form-group units-assignment-group" style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                            <label>Specific Unit Locks</label>
+                            <div id="edit-units-container" class="units-container">
+                                <p style="opacity: 0.5; font-style: italic; font-size: 0.8rem;">Select levels to manage units.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                    <button type="button" class="btn-ghost close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary" style="width: auto; min-width: 150px; margin-top: 0;">Save All Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Eradicate Student Confirmation Modal -->
+    <div id="eradicate-modal" class="modal overlay hidden">
+        <div class="glass-card modal-card" style="border: 1px solid var(--brand-red);">
+            <header>
+                <h2 style="color: var(--brand-red);">⚠️ Permanent Deletion</h2>
+                <button class="close-modal">&times;</button>
+            </header>
+            <div style="padding: 20px; text-align: center;">
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">Are you sure you want to delete <strong id="eradicate-student-name" style="color: white;"></strong> permanently?</p>
+                <p style="color: var(--brand-red); font-weight: bold; margin-bottom: 20px;">This action cannot be undone and will destroy all attendance records!</p>
+                <input type="hidden" id="eradicate-student-id">
+                <div class="modal-actions" style="justify-content: center; gap: 15px;">
+                    <button type="button" class="btn-ghost close-modal">Cancel</button>
+                    <button type="button" id="confirm-eradicate-btn" class="btn-danger">Eradicate Student</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../launchpad/js/security.js"></script>
+    <script src="./js/admin-student-hub.js"></script>
+    <script src="./js/admin-groups-hub.js"></script>
+    <script src="./js/admin-tutorials.js"></script>
+    <script src="./js/admin-auditor.js"></script>
+    <script src="./js/admin-manifest.js"></script>
+    <script src="../shared/js/attendance-grid.js"></script>
+    <script src="./js/admin-master-attendance.js"></script>
+    <script src="./js/translations.js"></script>
+</body>
+</html>
+
